@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Football Scoreboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{
+margin:0;
+background:transparent;
+font-family:Arial,sans-serif;
+overflow:hidden;
+}
+
+.scoreboard{
+position:absolute;
+top:20px;
+left:20px;
+display:flex;
+align-items:center;
+background:rgba(0,0,0,.85);
+border-radius:12px;
+overflow:hidden;
+color:white;
+}
+
+.team{
+padding:12px 18px;
+font-weight:bold;
+font-size:22px;
+}
+
+.fuc{
+background:#0b5d3b;
+}
+
+.hind{
+background:#c62828;
+}
+
+.score{
+padding:12px 18px;
+font-size:28px;
+font-weight:bold;
+background:#111;
+}
+
+.info{
+padding:10px 15px;
+background:#222;
+font-size:16px;
+text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="scoreboard">
+<div class="team fuc" id="team1">F.U.C</div>
+
+<div class="score">
+<span id="score1">0</span>
+-
+<span id="score2">0</span>
+</div>
+
+<div class="team hind" id="team2">HIND</div>
+
+<div class="info">
+<div id="half">1ST HALF</div>
+<div id="time">00:00</div>
+</div>
+</div>
+
+<script>
+
+const SUPABASE_URL="YOUR_PROJECT_URL";
+const SUPABASE_KEY="YOUR_PUBLISHABLE_KEY";
+
+const client=supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+async function loadData(){
+
+const {data}=await client
+.from('scoreboard')
+.select('*')
+.eq('id',1)
+.single();
+
+if(!data) return;
+
+document.getElementById('team1').innerText=data.team1;
+document.getElementById('team2').innerText=data.team2;
+
+document.getElementById('score1').innerText=data.score1;
+document.getElementById('score2').innerText=data.score2;
+
+document.getElementById('time').innerText=data.match_time;
+document.getElementById('half').innerText=data.half;
+
+}
+
+loadData();
+
+setInterval(loadData,1000);
+
+</script>
+
+</body>
+</html>
