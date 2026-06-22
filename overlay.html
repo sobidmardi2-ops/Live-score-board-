@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>FUC Scoreboard Admin</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{
+font-family:Arial;
+background:#111;
+color:white;
+padding:20px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin:5px 0;
+font-size:18px;
+}
+
+button{
+padding:12px;
+margin:5px;
+font-size:18px;
+cursor:pointer;
+}
+
+.box{
+background:#222;
+padding:15px;
+border-radius:10px;
+margin-bottom:15px;
+}
+</style>
+</head>
+<body>
+
+<h2>Football Scoreboard Control</h2>
+
+<div class="box">
+<label>Team 1</label>
+<input id="team1" value="F.U.C">
+
+<label>Team 2</label>
+<input id="team2" value="HIND">
+
+<button onclick="saveTeams()">Save Teams</button>
+</div>
+
+<div class="box">
+<h3>Score</h3>
+
+<button onclick="goal1()">FUC +1</button>
+<button onclick="minus1()">FUC -1</button>
+
+<br><br>
+
+<button onclick="goal2()">HIND +1</button>
+<button onclick="minus2()">HIND -1</button>
+
+<h2 id="scoreView">0 - 0</h2>
+</div>
+
+<div class="box">
+<label>Match Time</label>
+<input id="matchTime" value="00:00">
+
+<label>Half</label>
+<select id="half">
+<option>1ST HALF</option>
+<option>HALF TIME</option>
+<option>2ND HALF</option>
+<option>FULL TIME</option>
+</select>
+
+<button onclick="saveMatch()">Update Match</button>
+</div>
+
+<script>
+
+const SUPABASE_URL="YOUR_PROJECT_URL";
+const SUPABASE_KEY="YOUR_PUBLISHABLE_KEY";
+
+const db=supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+let rowId=1;
+let s1=0;
+let s2=0;
+
+async function load(){
+
+const {data}=await db
+.from('scoreboard')
+.select('*')
+.eq('id',1)
+.single();
+
+if(!data)return;
+
+rowId=data.id;
+
+s1=data.score1;
+s2=data.score2;
+
+document.getElementById('team1').value=data.team1;
+document.getElementById('team2').value=data.team2;
+
+document.getElementById('matchTime').value=data.match_time;
+document.getElementById('half').value=data.half;
+
+showScore();
+
+}
+
+function showScore(){
+document.getElementById("scoreView").innerHTML=
+s1+" - "+s2;
+}
+
+async function updateScore(){
+
+await db
+.from('scoreboard')
+.update({
+score1:s1,
+score2:s2
+})
+.eq('id',rowId);
+
+showScore();
+}
+
+function goal1(){
+s1++;
+updateScore();
+}
+
+function minus1(){
+if(s1>0)s1--;
+updateScore();
+}
+
+function goal2(){
+s2++;
+updateScore();
+}
+
+function minus2(){
+if(s2>0)s2--;
+updateScore();
+}
+
+async function saveTeams(){
+
+await db
+.from('scoreboard')
+.update({
+team1:document.getElementById('team1').value,
+team2:document.getElementById('team2').value
+})
+.eq('id',rowId);
+
+alert("Saved");
+}
+
+async function saveMatch(){
+
+await db
+.from('scoreboard')
+.update({
+match_time:document.getElementById('matchTime').value,
+half:document.getElementById('half').value
+})
+.eq('id',rowId);
+
+alert("Updated");
+}
+
+load();
+
+</script>
+
+</body>
+</html>
